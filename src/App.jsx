@@ -19,19 +19,34 @@ function App() {
   const [editingStudent, setEditingStudent] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedClass, setSelectedClass] = useState("");
   const [filteredStudents, setFilteredStudents] = useState([]);
+  const [availableClasses, setAvailableClasses] = useState([]);
 
-  // Filter students when search term changes
+  // Get unique classes for filter dropdown
   useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setFilteredStudents(students);
-    } else {
-      const filtered = students.filter(student => 
+    const classes = [...new Set(students.map(student => student.class))];
+    setAvailableClasses(classes);
+  }, [students]);
+
+  // Filter students when search term or selected class changes
+  useEffect(() => {
+    let filtered = [...students];
+    
+    // Filter by name if search term exists
+    if (searchTerm.trim() !== "") {
+      filtered = filtered.filter(student => 
         student.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setFilteredStudents(filtered);
     }
-  }, [searchTerm, students]);
+    
+    // Filter by class if selected
+    if (selectedClass) {
+      filtered = filtered.filter(student => student.class === selectedClass);
+    }
+    
+    setFilteredStudents(filtered);
+  }, [searchTerm, selectedClass, students]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -43,6 +58,10 @@ function App() {
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+  };
+
+  const handleClassFilterChange = (e) => {
+    setSelectedClass(e.target.value);
   };
 
   const handleEditInputChange = (e) => {
@@ -125,9 +144,9 @@ function App() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-center mb-8">Quản lý Sinh viên</h1>
       
-      {/* Search Bar */}
+      {/* Search and Filter Bar */}
       <div className="mb-6 bg-white p-4 rounded-lg shadow-md">
-        <div className="flex flex-col md:flex-row md:items-center">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div className="w-full md:w-1/2 mb-4 md:mb-0">
             <label htmlFor="search" className="block mb-1 font-medium">Tìm kiếm sinh viên</label>
             <input
@@ -138,6 +157,20 @@ function App() {
               onChange={handleSearchChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+          <div className="w-full md:w-1/3">
+            <label htmlFor="class-filter" className="block mb-1 font-medium">Lọc theo lớp</label>
+            <select
+              id="class-filter"
+              value={selectedClass}
+              onChange={handleClassFilterChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Tất cả các lớp</option>
+              {availableClasses.map(className => (
+                <option key={className} value={className}>{className}</option>
+              ))}
+            </select>
           </div>
         </div>
       </div>

@@ -52,6 +52,14 @@ function App() {
     });
   };
 
+  // Delete student function
+  const handleDeleteStudent = (id) => {
+    if (confirm("Bạn có chắc chắn muốn xoá sinh viên này?")) {
+      const updatedStudents = students.filter(student => student.id !== id);
+      setStudents(updatedStudents);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-center mb-8">Quản lý Sinh viên</h1>
@@ -129,7 +137,10 @@ function App() {
                 <td className="py-2 px-4 border-b">{student.class}</td>
                 <td className="py-2 px-4 border-b">{student.age}</td>
                 <td className="py-2 px-4 border-b">
-                  <button className="bg-red-500 text-white px-3 py-1 rounded mr-2 hover:bg-red-600">
+                  <button 
+                    onClick={() => handleDeleteStudent(student.id)}
+                    className="bg-red-500 text-white px-3 py-1 rounded mr-2 hover:bg-red-600"
+                  >
                     Xoá
                   </button>
                 </td>

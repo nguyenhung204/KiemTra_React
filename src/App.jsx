@@ -2,13 +2,17 @@ import { useState, useEffect } from 'react'
 import './App.css'
 
 function App() {
-  const [students, setStudents] = useState([
-    { id: 1, name: "Nguyễn Văn A", class: "CNTT1", age: 20 },
-    { id: 2, name: "Trần Thị B", class: "CNTT2", age: 21 },
-    { id: 3, name: "Lê Văn C", class: "HTTT1", age: 22 },
-    { id: 4, name: "Phạm Thị D", class: "CNTT1", age: 20 },
-    { id: 5, name: "Hoàng Văn E", class: "HTTT2", age: 21 }
-  ]);
+  // Load students from localStorage or use default data if none exists
+  const [students, setStudents] = useState(() => {
+    const savedStudents = localStorage.getItem('students');
+    return savedStudents ? JSON.parse(savedStudents) : [
+      { id: 1, name: "Nguyễn Văn A", class: "CNTT1", age: 20 },
+      { id: 2, name: "Trần Thị B", class: "CNTT2", age: 21 },
+      { id: 3, name: "Lê Văn C", class: "HTTT1", age: 22 },
+      { id: 4, name: "Phạm Thị D", class: "CNTT1", age: 20 },
+      { id: 5, name: "Hoàng Văn E", class: "HTTT2", age: 21 }
+    ];
+  });
 
   const [newStudent, setNewStudent] = useState({
     name: "",
@@ -22,6 +26,11 @@ function App() {
   const [selectedClass, setSelectedClass] = useState("");
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [availableClasses, setAvailableClasses] = useState([]);
+
+  // Save to localStorage whenever students change
+  useEffect(() => {
+    localStorage.setItem('students', JSON.stringify(students));
+  }, [students]);
 
   // Get unique classes for filter dropdown
   useEffect(() => {
@@ -140,6 +149,22 @@ function App() {
     setEditingStudent(null);
   };
 
+  // Reset localStorage
+  const handleResetData = () => {
+    if (confirm("Bạn có chắc chắn muốn xoá tất cả dữ liệu và khôi phục dữ liệu mẫu?")) {
+      localStorage.removeItem('students');
+      setStudents([
+        { id: 1, name: "Nguyễn Văn A", class: "CNTT1", age: 20 },
+        { id: 2, name: "Trần Thị B", class: "CNTT2", age: 21 },
+        { id: 3, name: "Lê Văn C", class: "HTTT1", age: 22 },
+        { id: 4, name: "Phạm Thị D", class: "CNTT1", age: 20 },
+        { id: 5, name: "Hoàng Văn E", class: "HTTT2", age: 21 }
+      ]);
+      setSearchTerm("");
+      setSelectedClass("");
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-center mb-8">Quản lý Sinh viên</h1>
@@ -219,7 +244,14 @@ function App() {
                 />
               </div>
             </div>
-            <div className="flex justify-end">
+            <div className="flex justify-between">
+              <button 
+                type="button" 
+                onClick={handleResetData}
+                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              >
+                Khôi phục dữ liệu mẫu
+              </button>
               <button 
                 type="submit" 
                 className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -306,28 +338,36 @@ function App() {
             </tr>
           </thead>
           <tbody>
-            {filteredStudents.map((student) => (
-              <tr key={student.id} className="hover:bg-gray-50">
-                <td className="py-2 px-4 border-b">{student.id}</td>
-                <td className="py-2 px-4 border-b">{student.name}</td>
-                <td className="py-2 px-4 border-b">{student.class}</td>
-                <td className="py-2 px-4 border-b">{student.age}</td>
-                <td className="py-2 px-4 border-b">
-                  <button 
-                    onClick={() => handleEditClick(student)}
-                    className="bg-yellow-500 text-white px-3 py-1 rounded mr-2 hover:bg-yellow-600"
-                  >
-                    Sửa
-                  </button>
-                  <button 
-                    onClick={() => handleDeleteStudent(student.id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                  >
-                    Xoá
-                  </button>
+            {filteredStudents.length > 0 ? (
+              filteredStudents.map((student) => (
+                <tr key={student.id} className="hover:bg-gray-50">
+                  <td className="py-2 px-4 border-b">{student.id}</td>
+                  <td className="py-2 px-4 border-b">{student.name}</td>
+                  <td className="py-2 px-4 border-b">{student.class}</td>
+                  <td className="py-2 px-4 border-b">{student.age}</td>
+                  <td className="py-2 px-4 border-b">
+                    <button 
+                      onClick={() => handleEditClick(student)}
+                      className="bg-yellow-500 text-white px-3 py-1 rounded mr-2 hover:bg-yellow-600"
+                    >
+                      Sửa
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteStudent(student.id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                    >
+                      Xoá
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="py-4 text-center text-gray-500">
+                  Không tìm thấy sinh viên nào phù hợp.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

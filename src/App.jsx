@@ -451,7 +451,7 @@ function App() {
         </div>
         
         <div className="text-center mt-8 text-gray-500 text-sm">
-          <p>© 2025 Quản lý Sinh viên - Được tạo với React & Tailwind CSS</p>
+          <p>© 2025 Quản lý Sinh viên - Được tạo bởi Nguyễn Văn Hùng</p>
         </div>
       </div>
     </div>

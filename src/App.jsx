@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import StudentItem from './components/StudentItem'
 import './App.css'
 
 function App() {
@@ -340,26 +341,12 @@ function App() {
           <tbody>
             {filteredStudents.length > 0 ? (
               filteredStudents.map((student) => (
-                <tr key={student.id} className="hover:bg-gray-50">
-                  <td className="py-2 px-4 border-b">{student.id}</td>
-                  <td className="py-2 px-4 border-b">{student.name}</td>
-                  <td className="py-2 px-4 border-b">{student.class}</td>
-                  <td className="py-2 px-4 border-b">{student.age}</td>
-                  <td className="py-2 px-4 border-b">
-                    <button 
-                      onClick={() => handleEditClick(student)}
-                      className="bg-yellow-500 text-white px-3 py-1 rounded mr-2 hover:bg-yellow-600"
-                    >
-                      Sửa
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteStudent(student.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                    >
-                      Xoá
-                    </button>
-                  </td>
-                </tr>
+                <StudentItem 
+                  key={student.id}
+                  student={student}
+                  onEdit={handleEditClick}
+                  onDelete={handleDeleteStudent}
+                />
               ))
             ) : (
               <tr>

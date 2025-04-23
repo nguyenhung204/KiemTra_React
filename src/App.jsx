@@ -16,10 +16,21 @@ function App() {
     age: ""
   });
 
+  const [editingStudent, setEditingStudent] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewStudent({
       ...newStudent,
+      [name]: value
+    });
+  };
+
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditingStudent({
+      ...editingStudent,
       [name]: value
     });
   };
@@ -60,63 +71,160 @@ function App() {
     }
   };
 
+  // Edit student functions
+  const handleEditClick = (student) => {
+    setEditingStudent({...student});
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditingStudent(null);
+  };
+
+  const handleSaveEdit = (e) => {
+    e.preventDefault();
+    
+    // Form validation
+    if (!editingStudent.name || !editingStudent.class || !editingStudent.age) {
+      alert("Vui lòng điền đầy đủ thông tin sinh viên!");
+      return;
+    }
+
+    // Update the student in the list
+    const updatedStudents = students.map(student => 
+      student.id === editingStudent.id 
+        ? {...editingStudent, age: parseInt(editingStudent.age)} 
+        : student
+    );
+    
+    setStudents(updatedStudents);
+    setIsEditing(false);
+    setEditingStudent(null);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-center mb-8">Quản lý Sinh viên</h1>
       
       {/* Add Student Form */}
-      <div className="mb-8 bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Thêm Sinh viên mới</h2>
-        <form onSubmit={handleAddStudent} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label htmlFor="name" className="block mb-1 font-medium">Họ và Tên</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={newStudent.name}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Nhập tên sinh viên"
-              />
+      {!isEditing && (
+        <div className="mb-8 bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Thêm Sinh viên mới</h2>
+          <form onSubmit={handleAddStudent} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label htmlFor="name" className="block mb-1 font-medium">Họ và Tên</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={newStudent.name}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Nhập tên sinh viên"
+                />
+              </div>
+              <div>
+                <label htmlFor="class" className="block mb-1 font-medium">Lớp</label>
+                <input
+                  type="text"
+                  id="class"
+                  name="class"
+                  value={newStudent.class}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Nhập lớp"
+                />
+              </div>
+              <div>
+                <label htmlFor="age" className="block mb-1 font-medium">Tuổi</label>
+                <input
+                  type="number"
+                  id="age"
+                  name="age"
+                  value={newStudent.age}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Nhập tuổi"
+                  min="1"
+                />
+              </div>
             </div>
-            <div>
-              <label htmlFor="class" className="block mb-1 font-medium">Lớp</label>
-              <input
-                type="text"
-                id="class"
-                name="class"
-                value={newStudent.class}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Nhập lớp"
-              />
+            <div className="flex justify-end">
+              <button 
+                type="submit" 
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Thêm sinh viên
+              </button>
             </div>
-            <div>
-              <label htmlFor="age" className="block mb-1 font-medium">Tuổi</label>
-              <input
-                type="number"
-                id="age"
-                name="age"
-                value={newStudent.age}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Nhập tuổi"
-                min="1"
-              />
+          </form>
+        </div>
+      )}
+
+      {/* Edit Student Form */}
+      {isEditing && editingStudent && (
+        <div className="mb-8 bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Chỉnh sửa thông tin sinh viên</h2>
+          <form onSubmit={handleSaveEdit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label htmlFor="edit-name" className="block mb-1 font-medium">Họ và Tên</label>
+                <input
+                  type="text"
+                  id="edit-name"
+                  name="name"
+                  value={editingStudent.name}
+                  onChange={handleEditInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Nhập tên sinh viên"
+                />
+              </div>
+              <div>
+                <label htmlFor="edit-class" className="block mb-1 font-medium">Lớp</label>
+                <input
+                  type="text"
+                  id="edit-class"
+                  name="class"
+                  value={editingStudent.class}
+                  onChange={handleEditInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Nhập lớp"
+                />
+              </div>
+              <div>
+                <label htmlFor="edit-age" className="block mb-1 font-medium">Tuổi</label>
+                <input
+                  type="number"
+                  id="edit-age"
+                  name="age"
+                  value={editingStudent.age}
+                  onChange={handleEditInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Nhập tuổi"
+                  min="1"
+                />
+              </div>
             </div>
-          </div>
-          <div className="flex justify-end">
-            <button 
-              type="submit" 
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Thêm sinh viên
-            </button>
-          </div>
-        </form>
-      </div>
+            <div className="flex justify-end space-x-3">
+              <button 
+                type="button" 
+                onClick={handleCancelEdit}
+                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              >
+                Huỷ
+              </button>
+              <button 
+                type="submit" 
+                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                Lưu thay đổi
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
       
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-300">
@@ -138,8 +246,14 @@ function App() {
                 <td className="py-2 px-4 border-b">{student.age}</td>
                 <td className="py-2 px-4 border-b">
                   <button 
+                    onClick={() => handleEditClick(student)}
+                    className="bg-yellow-500 text-white px-3 py-1 rounded mr-2 hover:bg-yellow-600"
+                  >
+                    Sửa
+                  </button>
+                  <button 
                     onClick={() => handleDeleteStudent(student.id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded mr-2 hover:bg-red-600"
+                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
                   >
                     Xoá
                   </button>

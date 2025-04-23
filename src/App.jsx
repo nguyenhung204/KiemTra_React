@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 function App() {
@@ -18,6 +18,20 @@ function App() {
 
   const [editingStudent, setEditingStudent] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredStudents, setFilteredStudents] = useState([]);
+
+  // Filter students when search term changes
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredStudents(students);
+    } else {
+      const filtered = students.filter(student => 
+        student.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredStudents(filtered);
+    }
+  }, [searchTerm, students]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -25,6 +39,10 @@ function App() {
       ...newStudent,
       [name]: value
     });
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
   };
 
   const handleEditInputChange = (e) => {
@@ -106,6 +124,23 @@ function App() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-center mb-8">Quản lý Sinh viên</h1>
+      
+      {/* Search Bar */}
+      <div className="mb-6 bg-white p-4 rounded-lg shadow-md">
+        <div className="flex flex-col md:flex-row md:items-center">
+          <div className="w-full md:w-1/2 mb-4 md:mb-0">
+            <label htmlFor="search" className="block mb-1 font-medium">Tìm kiếm sinh viên</label>
+            <input
+              type="text"
+              id="search"
+              placeholder="Nhập tên sinh viên cần tìm..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      </div>
       
       {/* Add Student Form */}
       {!isEditing && (
@@ -238,7 +273,7 @@ function App() {
             </tr>
           </thead>
           <tbody>
-            {students.map((student) => (
+            {filteredStudents.map((student) => (
               <tr key={student.id} className="hover:bg-gray-50">
                 <td className="py-2 px-4 border-b">{student.id}</td>
                 <td className="py-2 px-4 border-b">{student.name}</td>
